@@ -1,0 +1,16 @@
+# 16 — Potential Challenges and Mitigation
+
+| # | Risk | Likelihood | Impact | Mitigation |
+|---|---|---|---|---|
+| 1 | Exchange-rate API free-tier limits/downtime block invoice creation | Medium | High | Cache last-known rate ([09-api-and-integrations](09-api-and-integrations.md)); allow drafts to save without a rate; visibly label cached-rate age; pick a provider with a generous/no-key free tier (e.g., Frankfurter.app) as a fallback. |
+| 2 | Scope creep beyond a semester's capacity (feature list grows past what 14 weeks allows) | High | High | Strict adherence to [04-scope-and-boundaries](04-scope-and-boundaries.md); out-of-scope items tracked as a "Phase 2" backlog, not silently added mid-build; MVP-first sprint ordering in [12-timeline-and-milestones](12-timeline-and-milestones.md). |
+| 3 | Offline-sync conflicts corrupt or duplicate data | Medium | High | Simple, well-tested last-write-wins policy with timestamps; dedicated TC-04-style tests ([13-testing-and-qa-plan](13-testing-and-qa-plan.md)); local DB always source of truth until sync confirms. |
+| 4 | Incorrect currency conversion math ships in an invoice | Low-Medium | Very High (undermines the whole premise of the app) | 100% unit test coverage requirement on conversion/total logic; exchange rate + timestamp always shown on the invoice for the user to sanity-check. |
+| 5 | PDF generation is more complex/time-consuming than estimated (layout, fonts, multi-page invoices) | Medium | Medium | Timebox to Android's native `PdfDocument` API first (simpler, no extra dependency); fall back to a library (iText/PDFBox-Android) only if native layout proves too limiting; scheduled its own sprint (W9–W10) with buffer. |
+| 6 | Solo/small-team bandwidth vs. feature list (Android + backend + PDF + currency logic + testing) | High | High | Firebase chosen specifically to remove custom-backend workload ([07-system-architecture](07-system-architecture.md)); features prioritized so a reduced-but-coherent app (client+project+invoice, even without full tax estimation) is still a valid fallback deliverable. |
+| 7 | Tax/deduction figures misinterpreted by a user as authoritative/filed advice | Medium | Medium (reputational/ethical, not just technical) | Explicit in-app disclaimer next to all tax figures; documented clearly as "estimate, not filing" throughout ([04](04-scope-and-boundaries.md), [14](14-security-privacy-and-compliance.md)). |
+| 8 | Security misconfiguration (Firestore/Storage rules too permissive) exposes user data | Low | Very High | Security rules written and tested against the Firebase emulator before any real data is stored; owner-only access pattern kept simple and auditable. |
+| 9 | Device/testing access limited (no varied Android devices to test on) | Medium | Low-Medium | Primary testing on emulator across a couple of API levels/screen sizes; at least one physical mid-range device test pass before final submission. |
+| 10 | Academic timeline slips due to coursework overlap with other modules | Medium | Medium | Buffer built into W13–W14 (testing/polish/delivery) rather than packing features to the last week; MVP-first ordering means a partial build is still demonstrable at any milestone. |
+
+Next: [17 — Resources Required](17-resources-required.md)
