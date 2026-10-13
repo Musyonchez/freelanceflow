@@ -23,7 +23,10 @@ interface TimeEntryDao {
     @Query("SELECT * FROM time_entries WHERE projectId = :projectId ORDER BY startTime DESC")
     fun observeByProject(projectId: String): Flow<List<TimeEntryEntity>>
 
-    @Query("SELECT * FROM time_entries WHERE projectId = :projectId AND billed = 0 ORDER BY startTime ASC")
+    @Query(
+        "SELECT * FROM time_entries WHERE projectId = :projectId AND billed = 0 " +
+            "AND endTime IS NOT NULL ORDER BY startTime ASC",
+    )
     suspend fun getUnbilledByProject(projectId: String): List<TimeEntryEntity>
 
     @Query("SELECT * FROM time_entries WHERE endTime IS NULL LIMIT 1")

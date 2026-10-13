@@ -20,6 +20,9 @@ class TimeEntryRepositoryImpl @Inject constructor(
     override fun observeRunningEntry(): Flow<TimeEntry?> =
         timeEntryDao.observeRunningEntry().map { it?.toDomain() }
 
+    override suspend fun getUnbilledByProject(projectId: String): List<TimeEntry> =
+        timeEntryDao.getUnbilledByProject(projectId).map { it.toDomain() }
+
     override suspend fun start(projectId: String) {
         timeEntryDao.getRunningEntry()?.let { running -> stopEntity(running) }
         timeEntryDao.upsert(
