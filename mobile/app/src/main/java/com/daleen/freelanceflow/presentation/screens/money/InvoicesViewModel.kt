@@ -1,5 +1,6 @@
 package com.daleen.freelanceflow.presentation.screens.money
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.daleen.freelanceflow.domain.model.Client
@@ -10,14 +11,19 @@ import com.daleen.freelanceflow.domain.model.InvoiceStatus
 import com.daleen.freelanceflow.domain.model.Money
 import com.daleen.freelanceflow.domain.model.Project
 import com.daleen.freelanceflow.domain.model.ProjectStatus
+import com.daleen.freelanceflow.domain.repository.BusinessProfileRepository
 import com.daleen.freelanceflow.domain.repository.ClientRepository
 import com.daleen.freelanceflow.domain.repository.InvoiceRepository
 import com.daleen.freelanceflow.domain.repository.ProjectRepository
 import com.daleen.freelanceflow.domain.repository.TimeEntryRepository
+import com.daleen.freelanceflow.pdf.InvoicePdfGenerator
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -32,10 +38,18 @@ class InvoicesViewModel @Inject constructor(
     private val projectRepository: ProjectRepository,
     private val clientRepository: ClientRepository,
     private val timeEntryRepository: TimeEntryRepository,
+    private val businessProfileRepository: BusinessProfileRepository,
+    private val pdfGenerator: InvoicePdfGenerator,
 ) : ViewModel() {
 
     val invoices: StateFlow<List<Invoice>> = invoiceRepository.observeAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    val businessName: StateFlow<String> = businessProfileRepository.businessName
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
+
+    private val _shareEvent = MutableSharedFlow<Uri>(extraBufferCapacity = 1)
+    val shareEvent: SharedFlow<Uri> = _shareEvent
 
     val clients: StateFlow<List<Client>> = clientRepository.observeAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
@@ -161,6 +175,20 @@ class InvoicesViewModel @Inject constructor(
     fun markPaid(invoice: Invoice) {
         viewModelScope.launch {
             invoiceRepository.recordPayment(invoice.id, invoice.total, System.currentTimeMillis(), null)
+        }
+    }
+
+    fun setBusinessName(name: String) {
+        viewModelScope.launch { businessProfileRepository.setBusinessName(name) }
+    }
+
+    fun shareInvoice(invoice: Invoice) {
+        val client = clients.value.find { it.id == invoice.clientId } ?: return
+        viewModelScope.launch {
+            val items = invoiceRepository.observeItems(invoice.id).first()
+            val name = businessProfileRepository.businessName.first()
+            val file = pdfGenerator.generate(invoice, items, client, name)
+            _shareEvent.emit(pdfGenerator.shareUriFor(file))
         }
     }
 }
