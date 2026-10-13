@@ -3,12 +3,14 @@ package com.daleen.freelanceflow.di
 import com.daleen.freelanceflow.data.repository.BusinessProfileRepositoryImpl
 import com.daleen.freelanceflow.data.repository.ClientRepositoryImpl
 import com.daleen.freelanceflow.data.repository.ExchangeRateRepositoryImpl
+import com.daleen.freelanceflow.data.repository.ExpenseRepositoryImpl
 import com.daleen.freelanceflow.data.repository.InvoiceRepositoryImpl
 import com.daleen.freelanceflow.data.repository.ProjectRepositoryImpl
 import com.daleen.freelanceflow.data.repository.TimeEntryRepositoryImpl
 import com.daleen.freelanceflow.domain.repository.BusinessProfileRepository
 import com.daleen.freelanceflow.domain.repository.ClientRepository
 import com.daleen.freelanceflow.domain.repository.ExchangeRateRepository
+import com.daleen.freelanceflow.domain.repository.ExpenseRepository
 import com.daleen.freelanceflow.domain.repository.InvoiceRepository
 import com.daleen.freelanceflow.domain.repository.ProjectRepository
 import com.daleen.freelanceflow.domain.repository.TimeEntryRepository
@@ -44,4 +46,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindBusinessProfileRepository(impl: BusinessProfileRepositoryImpl): BusinessProfileRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindExpenseRepository(impl: ExpenseRepositoryImpl): ExpenseRepository
 }
