@@ -29,6 +29,9 @@ interface TimeEntryDao {
     @Query("SELECT * FROM time_entries WHERE endTime IS NULL LIMIT 1")
     fun observeRunningEntry(): Flow<TimeEntryEntity?>
 
+    @Query("SELECT * FROM time_entries WHERE endTime IS NULL LIMIT 1")
+    suspend fun getRunningEntry(): TimeEntryEntity?
+
     @Query("UPDATE time_entries SET billed = 1 WHERE id IN (:ids)")
     suspend fun markBilled(ids: List<String>)
 }

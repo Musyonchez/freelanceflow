@@ -2,8 +2,10 @@ package com.daleen.freelanceflow.di
 
 import com.daleen.freelanceflow.data.repository.ClientRepositoryImpl
 import com.daleen.freelanceflow.data.repository.ProjectRepositoryImpl
+import com.daleen.freelanceflow.data.repository.TimeEntryRepositoryImpl
 import com.daleen.freelanceflow.domain.repository.ClientRepository
 import com.daleen.freelanceflow.domain.repository.ProjectRepository
+import com.daleen.freelanceflow.domain.repository.TimeEntryRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -20,4 +22,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindProjectRepository(impl: ProjectRepositoryImpl): ProjectRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindTimeEntryRepository(impl: TimeEntryRepositoryImpl): TimeEntryRepository
 }

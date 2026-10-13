@@ -7,8 +7,10 @@ import com.daleen.freelanceflow.domain.model.ClientStatus
 import com.daleen.freelanceflow.domain.model.Money
 import com.daleen.freelanceflow.domain.model.Project
 import com.daleen.freelanceflow.domain.model.ProjectStatus
+import com.daleen.freelanceflow.domain.model.TimeEntry
 import com.daleen.freelanceflow.domain.repository.ClientRepository
 import com.daleen.freelanceflow.domain.repository.ProjectRepository
+import com.daleen.freelanceflow.domain.repository.TimeEntryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -24,6 +26,7 @@ import kotlin.math.roundToLong
 class ProjectsViewModel @Inject constructor(
     private val projectRepository: ProjectRepository,
     private val clientRepository: ClientRepository,
+    private val timeEntryRepository: TimeEntryRepository,
 ) : ViewModel() {
 
     val projects: StateFlow<List<Project>> = projectRepository.observeAll()
@@ -31,6 +34,9 @@ class ProjectsViewModel @Inject constructor(
 
     val clients: StateFlow<List<Client>> = clientRepository.observeByStatus(ClientStatus.ACTIVE)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    val runningEntry: StateFlow<TimeEntry?> = timeEntryRepository.observeRunningEntry()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     private val _formState = MutableStateFlow<ProjectFormState?>(null)
     val formState: StateFlow<ProjectFormState?> = _formState
@@ -96,5 +102,14 @@ class ProjectsViewModel @Inject constructor(
             projectRepository.setStatus(project.id, status)
             _formState.value = null
         }
+    }
+
+    fun startTimer(projectId: String) {
+        viewModelScope.launch { timeEntryRepository.start(projectId) }
+    }
+
+    fun stopTimer() {
+        val entry = runningEntry.value ?: return
+        viewModelScope.launch { timeEntryRepository.stop(entry) }
     }
 }
