@@ -1,5 +1,6 @@
 package com.daleen.freelanceflow.di
 
+import com.daleen.freelanceflow.data.repository.AuthRepositoryImpl
 import com.daleen.freelanceflow.data.repository.BusinessProfileRepositoryImpl
 import com.daleen.freelanceflow.data.repository.ClientRepositoryImpl
 import com.daleen.freelanceflow.data.repository.ExchangeRateRepositoryImpl
@@ -8,6 +9,7 @@ import com.daleen.freelanceflow.data.repository.InvoiceRepositoryImpl
 import com.daleen.freelanceflow.data.repository.ProjectRepositoryImpl
 import com.daleen.freelanceflow.data.repository.TaxProfileRepositoryImpl
 import com.daleen.freelanceflow.data.repository.TimeEntryRepositoryImpl
+import com.daleen.freelanceflow.domain.repository.AuthRepository
 import com.daleen.freelanceflow.domain.repository.BusinessProfileRepository
 import com.daleen.freelanceflow.domain.repository.ClientRepository
 import com.daleen.freelanceflow.domain.repository.ExchangeRateRepository
@@ -56,4 +58,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindTaxProfileRepository(impl: TaxProfileRepositoryImpl): TaxProfileRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAuthRepository(impl: AuthRepositoryImpl): AuthRepository
 }
