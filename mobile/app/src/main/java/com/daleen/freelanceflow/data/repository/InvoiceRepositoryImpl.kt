@@ -148,7 +148,9 @@ private fun InvoiceEntity.toDomain() = Invoice(
     baseCurrency = baseCurrency,
     exchangeRate = exchangeRate,
     exchangeRateTimestamp = exchangeRateTimestamp,
-    subtotal = Money(subtotalMinor, billingCurrency),
+    // subtotalMinor is the sum of line items before conversion, so it's denominated in
+    // baseCurrency; only totalMinor has actually been converted into billingCurrency.
+    subtotal = Money(subtotalMinor, baseCurrency),
     total = Money(totalMinor, billingCurrency),
     status = status.toDomain(),
     notes = notes,
