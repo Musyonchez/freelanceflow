@@ -15,6 +15,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,6 +25,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Card
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SecondaryTabRow
@@ -51,13 +55,14 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-private val TABS = listOf("Invoices", "Expenses")
+private val TABS = listOf("Invoices", "Expenses", "Tax")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MoneyScreen(
     invoicesViewModel: InvoicesViewModel = hiltViewModel(),
     expensesViewModel: ExpensesViewModel = hiltViewModel(),
+    taxViewModel: TaxViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
 ) {
     val invoices by invoicesViewModel.invoices.collectAsStateWithLifecycle()
@@ -69,6 +74,11 @@ fun MoneyScreen(
 
     val expenses by expensesViewModel.expenses.collectAsStateWithLifecycle()
     val expenseFormState by expensesViewModel.formState.collectAsStateWithLifecycle()
+
+    val taxProfile by taxViewModel.profile.collectAsStateWithLifecycle()
+    val taxPeriod by taxViewModel.period.collectAsStateWithLifecycle()
+    val deductionSummary by taxViewModel.summary.collectAsStateWithLifecycle()
+    val taxFormState by taxViewModel.formState.collectAsStateWithLifecycle()
 
     var showBusinessNameDialog by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableIntStateOf(0) }
@@ -132,7 +142,7 @@ fun MoneyScreen(
                         }
                     }
                 }
-            } else {
+            } else if (selectedTab == 1) {
                 if (expenses.isEmpty()) {
                     PlaceholderScreen(
                         title = "No expenses yet",
@@ -148,19 +158,34 @@ fun MoneyScreen(
                         }
                     }
                 }
+            } else {
+                TaxTabContent(
+                    profile = taxProfile,
+                    period = taxPeriod,
+                    summary = deductionSummary,
+                    onPeriodChange = taxViewModel::setPeriod,
+                )
             }
 
             FloatingActionButton(
                 onClick = {
-                    if (selectedTab == 0) invoicesViewModel.showBuilder() else expensesViewModel.showAddForm()
+                    when (selectedTab) {
+                        0 -> invoicesViewModel.showBuilder()
+                        1 -> expensesViewModel.showAddForm()
+                        else -> taxViewModel.showProfileForm()
+                    }
                 },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp),
             ) {
                 Icon(
-                    Icons.Filled.Add,
-                    contentDescription = if (selectedTab == 0) "Create invoice" else "Add expense",
+                    if (selectedTab == 2) Icons.Filled.Edit else Icons.Filled.Add,
+                    contentDescription = when (selectedTab) {
+                        0 -> "Create invoice"
+                        1 -> "Add expense"
+                        else -> "Edit tax profile"
+                    },
                 )
             }
         }
@@ -197,6 +222,15 @@ fun MoneyScreen(
                 onSave = expensesViewModel::saveForm,
             )
         }
+    }
+
+    if (taxFormState != null) {
+        TaxProfileDialog(
+            state = taxFormState!!,
+            onFieldChange = taxViewModel::updateForm,
+            onDismiss = taxViewModel::hideProfileForm,
+            onSave = taxViewModel::saveProfile,
+        )
     }
 
     if (showBusinessNameDialog) {
@@ -264,6 +298,102 @@ private fun InvoiceRow(
             }
         },
         modifier = Modifier.padding(horizontal = 8.dp),
+    )
+}
+
+@Composable
+private fun TaxTabContent(
+    profile: com.daleen.freelanceflow.domain.model.TaxProfile?,
+    period: TaxPeriod,
+    summary: DeductionSummary,
+    onPeriodChange: (TaxPeriod) -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 24.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = profile?.label ?: "No tax profile yet — tap the pencil to set one up",
+            style = MaterialTheme.typography.titleMedium,
+        )
+        if (profile != null) {
+            Text(
+                text = "Deduction rate: ${profile.deductionRatePercent}%",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            profile.notes?.let { Text(text = it, style = MaterialTheme.typography.bodySmall) }
+        }
+
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TaxPeriod.entries.forEach { candidate ->
+                FilterChip(
+                    selected = period == candidate,
+                    onClick = { onPeriodChange(candidate) },
+                    label = { Text(candidate.label) },
+                )
+            }
+        }
+
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                Text("Deductible expenses", style = MaterialTheme.typography.labelLarge)
+                Text(summary.deductibleTotal.format(), style = MaterialTheme.typography.headlineMedium)
+            }
+        }
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                Text("Estimated deduction", style = MaterialTheme.typography.labelLarge)
+                Text(summary.estimatedDeduction.format(), style = MaterialTheme.typography.headlineMedium)
+            }
+        }
+
+        Text(
+            text = "Estimate only, based on your own tax profile — not a filed or certified tax figure.",
+            style = MaterialTheme.typography.bodySmall,
+        )
+    }
+}
+
+@Composable
+private fun TaxProfileDialog(
+    state: TaxProfileFormState,
+    onFieldChange: ((TaxProfileFormState) -> TaxProfileFormState) -> Unit,
+    onDismiss: () -> Unit,
+    onSave: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Tax profile") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = state.label,
+                    onValueChange = { value -> onFieldChange { it.copy(label = value) } },
+                    label = { Text("Label") },
+                    singleLine = true,
+                )
+                OutlinedTextField(
+                    value = state.deductionRatePercent,
+                    onValueChange = { value -> onFieldChange { it.copy(deductionRatePercent = value) } },
+                    label = { Text("Deduction rate %") },
+                    singleLine = true,
+                )
+                OutlinedTextField(
+                    value = state.notes,
+                    onValueChange = { value -> onFieldChange { it.copy(notes = value) } },
+                    label = { Text("Notes / disclaimer") },
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "User-defined, not sourced from any tax authority — an estimate only.",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+        },
+        confirmButton = { TextButton(onClick = onSave) { Text("Save") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
     )
 }
 
