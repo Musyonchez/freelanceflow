@@ -1,17 +1,22 @@
 package com.daleen.freelanceflow.presentation.screens.home
 
+import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -19,19 +24,39 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), modifier: Modifier = Modifier) {
+fun HomeScreen(
+    viewModel: HomeViewModel = hiltViewModel(),
+    reportViewModel: ReportViewModel = hiltViewModel(),
+    modifier: Modifier = Modifier,
+) {
     val summary by viewModel.summary.collectAsStateWithLifecycle()
+    val reportPeriod by reportViewModel.period.collectAsStateWithLifecycle()
+    val isExporting by reportViewModel.isExporting.collectAsStateWithLifecycle()
     var showCurrencyDialog by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    LaunchedEffect(reportViewModel) {
+        reportViewModel.shareEvent.collect { uri ->
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/csv"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            context.startActivity(Intent.createChooser(intent, "Share report"))
+        }
+    }
 
     Column(
         modifier = modifier
@@ -70,6 +95,24 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), modifier: Modifier = 
                     Text(currency)
                     Text(amount.format())
                 }
+            }
+        }
+
+        Text("Export report", style = MaterialTheme.typography.titleMedium)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            ReportPeriod.entries.forEach { candidate ->
+                FilterChip(
+                    selected = reportPeriod == candidate,
+                    onClick = { reportViewModel.setPeriod(candidate) },
+                    label = { Text(candidate.label) },
+                )
+            }
+        }
+        Button(onClick = reportViewModel::exportCsv, enabled = !isExporting) {
+            if (isExporting) {
+                CircularProgressIndicator(modifier = Modifier.size(18.dp))
+            } else {
+                Text("Export CSV")
             }
         }
     }

@@ -18,8 +18,11 @@ Actively in development, built in staged, independently-committed increments. Im
 - **Cloud sync** — bidirectional push/pull of every table against Supabase Postgres (RLS-scoped per user), triggered on sign-in and hourly
 - **Unit tests** — money/currency-conversion math and invoice-numbering logic (the highest-risk-of-silent-bugs areas per the test plan)
 - **Overdue-invoice notifications** — periodic local check flags sent invoices past their due date and fires a real system notification
+- **Receipt photo capture** — attach a photo (camera or gallery) to an expense; stored locally first, uploaded to Supabase Storage on sync, lazily re-downloaded on other devices
+- **Reporting / CSV export** — a single CSV (invoices + expenses, with base-currency totals and the deductible estimate) for a chosen period, shared via the system share sheet
+- **Deletion-aware sync** — local deletes write a tombstone that's pushed to Supabase *before* the next pull, so a deleted row can't be resurrected by its still-present server copy
 
-Not yet built: receipt photo capture, reporting/CSV export, deletion-aware sync.
+All planned features are now implemented.
 
 ## Project structure
 
