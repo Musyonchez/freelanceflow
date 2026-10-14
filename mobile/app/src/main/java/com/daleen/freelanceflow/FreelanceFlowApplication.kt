@@ -3,6 +3,7 @@ package com.daleen.freelanceflow
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.daleen.freelanceflow.data.notifications.OverdueCheckScheduler
 import com.daleen.freelanceflow.data.sync.SyncScheduler
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
@@ -14,6 +15,8 @@ class FreelanceFlowApplication : Application(), Configuration.Provider {
 
     @Inject lateinit var syncScheduler: SyncScheduler
 
+    @Inject lateinit var overdueCheckScheduler: OverdueCheckScheduler
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
@@ -22,5 +25,6 @@ class FreelanceFlowApplication : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         syncScheduler.schedulePeriodic()
+        overdueCheckScheduler.schedulePeriodic()
     }
 }

@@ -48,6 +48,9 @@ interface InvoiceDao {
     @Query("UPDATE invoices SET status = :status WHERE id = :id")
     suspend fun setStatus(id: String, status: InvoiceStatus)
 
+    @Query("SELECT * FROM invoices WHERE status = :sent AND dueDate < :now")
+    suspend fun getNewlyOverdue(now: Long, sent: InvoiceStatus = InvoiceStatus.SENT): List<InvoiceEntity>
+
     @Query(
         "UPDATE invoices SET status = :overdue WHERE status = :sent AND dueDate < :now"
     )

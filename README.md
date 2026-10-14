@@ -17,8 +17,9 @@ Actively in development, built in staged, independently-committed increments. Im
 - **Auth** — Supabase email/password sign-in and sign-up
 - **Cloud sync** — bidirectional push/pull of every table against Supabase Postgres (RLS-scoped per user), triggered on sign-in and hourly
 - **Unit tests** — money/currency-conversion math and invoice-numbering logic (the highest-risk-of-silent-bugs areas per the test plan)
+- **Overdue-invoice notifications** — periodic local check flags sent invoices past their due date and fires a real system notification
 
-Not yet built: overdue-invoice notifications, receipt photo capture, reporting/CSV export, deletion-aware sync.
+Not yet built: receipt photo capture, reporting/CSV export, deletion-aware sync.
 
 ## Project structure
 
