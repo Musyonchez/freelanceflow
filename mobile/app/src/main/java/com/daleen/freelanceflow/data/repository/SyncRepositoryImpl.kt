@@ -1,6 +1,7 @@
 package com.daleen.freelanceflow.data.repository
 
 import android.util.Log
+import com.daleen.freelanceflow.data.receipts.ReceiptStore
 import com.daleen.freelanceflow.data.local.dao.ClientDao
 import com.daleen.freelanceflow.data.local.dao.ExpenseDao
 import com.daleen.freelanceflow.data.local.dao.InvoiceDao
@@ -54,6 +55,7 @@ class SyncRepositoryImpl @Inject constructor(
     private val taxProfileDao: TaxProfileDao,
     private val businessProfileRepository: BusinessProfileRepository,
     private val tombstoneDao: TombstoneDao,
+    private val receiptStore: ReceiptStore,
 ) : SyncRepository {
 
     override suspend fun syncAll(): Result<Unit> = runCatching {
@@ -140,7 +142,16 @@ class SyncRepositoryImpl @Inject constructor(
     }
 
     private suspend fun syncExpenses(userId: String) = safely("expenses") {
-        val local = expenseDao.getAllOnce()
+        val local = expenseDao.getAllOnce().map { entity ->
+            if (entity.receiptPhotoUrl == null && receiptStore.localFile(entity.id).exists()) {
+                val storagePath = receiptStore.upload(userId, entity.id)
+                val updated = entity.copy(receiptPhotoUrl = storagePath)
+                expenseDao.upsert(updated)
+                updated
+            } else {
+                entity
+            }
+        }
         if (local.isNotEmpty()) {
             supabaseClient.postgrest.from("expenses").upsert(local.map { it.toDto(userId) })
         }

@@ -1,6 +1,7 @@
 package com.daleen.freelanceflow.presentation.screens.money
 
 import android.content.Intent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -17,6 +19,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,14 +46,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.daleen.freelanceflow.domain.model.Expense
 import com.daleen.freelanceflow.domain.model.Invoice
 import com.daleen.freelanceflow.domain.model.InvoiceStatus
 import com.daleen.freelanceflow.presentation.components.PlaceholderScreen
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -82,6 +90,7 @@ fun MoneyScreen(
 
     var showBusinessNameDialog by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableIntStateOf(0) }
+    var previewReceiptFile by remember { mutableStateOf<File?>(null) }
 
     val context = LocalContext.current
     LaunchedEffect(invoicesViewModel) {
@@ -153,6 +162,9 @@ fun MoneyScreen(
                         items(expenses, key = { it.id }) { expense ->
                             ExpenseRow(
                                 expense = expense,
+                                localReceiptFile = expensesViewModel.localReceiptFile(expense),
+                                onDownloadReceipt = { expensesViewModel.downloadReceipt(expense) },
+                                onPreviewReceipt = { previewReceiptFile = it },
                                 onDelete = { expensesViewModel.deleteExpense(expense) },
                             )
                         }
@@ -219,6 +231,10 @@ fun MoneyScreen(
                 projects = activeProjects,
                 clients = clients,
                 onFieldChange = expensesViewModel::updateForm,
+                onRequestCameraUri = expensesViewModel::cameraUriForCurrentForm,
+                onPhotoCaptured = expensesViewModel::onPhotoCaptured,
+                onPhotoPicked = expensesViewModel::onPhotoPicked,
+                onRemovePhoto = expensesViewModel::removePhoto,
                 onSave = expensesViewModel::saveForm,
             )
         }
@@ -242,6 +258,17 @@ fun MoneyScreen(
                 showBusinessNameDialog = false
             },
         )
+    }
+
+    previewReceiptFile?.let { file ->
+        Dialog(onDismissRequest = { previewReceiptFile = null }) {
+            AsyncImage(
+                model = file,
+                contentDescription = "Receipt photo",
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
 }
 
@@ -398,8 +425,34 @@ private fun TaxProfileDialog(
 }
 
 @Composable
-private fun ExpenseRow(expense: Expense, onDelete: () -> Unit) {
+private fun ExpenseRow(
+    expense: Expense,
+    localReceiptFile: File?,
+    onDownloadReceipt: suspend () -> File?,
+    onPreviewReceipt: (File) -> Unit,
+    onDelete: () -> Unit,
+) {
+    var photoFile by remember(expense.id) { mutableStateOf(localReceiptFile) }
+    LaunchedEffect(expense.id, expense.receiptPhotoUrl) {
+        if (photoFile == null && expense.receiptPhotoUrl != null) {
+            photoFile = onDownloadReceipt()
+        }
+    }
+
     ListItem(
+        leadingContent = photoFile?.let { file ->
+            {
+                AsyncImage(
+                    model = file,
+                    contentDescription = "Receipt photo",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .clickable { onPreviewReceipt(file) },
+                )
+            }
+        },
         headlineContent = { Text(expense.category) },
         supportingContent = {
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {

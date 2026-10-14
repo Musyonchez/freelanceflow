@@ -25,6 +25,8 @@ The dashboard. Three cards summarize your business at a glance, all converted in
 
 If you have invoices in more than one currency, a breakdown list shows each currency's outstanding total unconverted too, alongside the converted summary.
 
+Below that, **Export report** lets you pick a period (this month / this year / all time) and tap **Export CSV** to generate a single CSV covering invoices and expenses for that period — including totals converted to your base currency and the estimated tax deduction — then share it anywhere via the system share sheet.
+
 ## Work
 
 Where projects and time tracking live.
@@ -47,8 +49,8 @@ Has three sub-tabs of its own, switchable via a row of tabs just under the "Invo
 
 ### Expenses sub-tab
 
-- Lists logged expenses with date and amount.
-- Tap **+** to log a new one: amount, currency, category, optionally linked to a client/project, and a toggle for whether it's tax-deductible.
+- Lists logged expenses with date and amount. A thumbnail appears on the left for any expense with a receipt photo attached — tap it to view full-size.
+- Tap **+** to log a new one: amount, currency, category, optionally linked to a client/project, a toggle for whether it's tax-deductible, and an optional receipt photo via **Camera** or **Gallery**.
 
 ### Tax sub-tab
 

@@ -43,6 +43,10 @@ This is a known quirk of freshly-booted Android emulators under load (lots of ba
 - Make sure you tapped **Allow** on the permission prompt at first launch (see [guide 5](05-running-the-app.md)). If you tapped "Don't allow" by accident, re-enable it from the device's system **Settings > Apps > FreelanceFlow > Notifications**.
 - Overdue-invoice notifications only fire for invoices that are **Sent** (not Draft or already Paid) and whose due date has passed — and the background check that looks for these runs periodically (roughly every 15 minutes while the app is installed), not instantly.
 
+## Receipt photo thumbnail doesn't show up on another device
+
+Receipt photos upload to Supabase Storage during the next sync *after* you capture them (not instantly), and are only downloaded to a second device the first time that device actually tries to display them. If you just captured a photo, give it a sync cycle (or pull-to-trigger-sync by signing out and back in) before checking on the other device.
+
 ## Build succeeds but the app crashes immediately on launch
 
 This is uncommon, but if it happens, the single most useful next step is checking Android Studio's **Logcat** panel (bottom of the window) at the moment of the crash — it prints a full stack trace. If you're reporting this as an issue, include that stack trace; "it crashed" on its own isn't enough to diagnose.

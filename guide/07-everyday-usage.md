@@ -50,8 +50,9 @@ Go to **Money > Expenses > +**. Log something like:
 - **Amount**: `15`, **Currency**: `USD`
 - **Category**: `Software`
 - Toggle **Deductible** on
+- Optionally tap **Camera** or **Gallery** to attach a photo of the receipt
 
-Tap **Add expense**. It shows in the Expenses list, and the Home dashboard's "Expenses" total updates.
+Tap **Add expense**. It shows in the Expenses list (with a thumbnail if you attached a photo), and the Home dashboard's "Expenses" total updates.
 
 ## 8. Set up a tax profile and see the estimate
 
