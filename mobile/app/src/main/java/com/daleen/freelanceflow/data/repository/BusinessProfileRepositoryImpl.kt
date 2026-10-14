@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 private val BUSINESS_NAME_KEY = stringPreferencesKey("business_name")
+private val BASE_CURRENCY_KEY = stringPreferencesKey("base_currency")
 
 class BusinessProfileRepositoryImpl @Inject constructor(
     private val dataStore: DataStore<Preferences>,
@@ -20,5 +21,12 @@ class BusinessProfileRepositoryImpl @Inject constructor(
 
     override suspend fun setBusinessName(name: String) {
         dataStore.edit { it[BUSINESS_NAME_KEY] = name }
+    }
+
+    override val baseCurrency: Flow<String> =
+        dataStore.data.map { it[BASE_CURRENCY_KEY] ?: "USD" }
+
+    override suspend fun setBaseCurrency(currencyCode: String) {
+        dataStore.edit { it[BASE_CURRENCY_KEY] = currencyCode }
     }
 }
