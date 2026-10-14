@@ -6,7 +6,7 @@ Android Developers. (n.d.). *App architecture guide*. Google. https://developer.
 
 Android Developers. (n.d.). *Room persistence library*. Google. https://developer.android.com/training/data-storage/room
 
-Firebase. (n.d.). *Firebase documentation*. Google. https://firebase.google.com/docs
+Supabase. (n.d.). *Supabase documentation*. https://supabase.com/docs
 
 Frankfurter. (n.d.). *Frankfurter — free exchange rate API*. https://www.frankfurter.app
 

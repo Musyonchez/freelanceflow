@@ -5,7 +5,7 @@ A 14-week semester plan (FS 2026), organized as seven two-week sprints. Adjust s
 | Weeks | Sprint | Focus | Deliverable / Milestone |
 |---|---|---|---|
 | W1–W2 | Sprint 0 | Requirements finalization, this document set, wireframes in Figma, project scaffolding (Android Studio project, Hilt/Room/Compose set up), GitHub repo initialized | Approved concept document; buildable empty-shell app in repo |
-| W3–W4 | Sprint 1 | Auth (Firebase), onboarding (base currency/tax profile setup), Client management (CRUD + list/detail) | Working sign-in; add/view/edit/archive a client end-to-end |
+| W3–W4 | Sprint 1 | Auth (Supabase), onboarding (base currency/tax profile setup), Client management (CRUD + list/detail) | Working sign-in; add/view/edit/archive a client end-to-end |
 | W5–W6 | Sprint 2 | Project management (CRUD, link to client), Time tracking (timer + manual entry) | Add a project to a client; log time against it |
 | W7–W8 | Sprint 3 | Exchange-rate API integration + caching, Invoice builder (line items from time entries + manual), invoice numbering | Draft an invoice pulling in logged time, correct currency conversion shown |
 | W9–W10 | Sprint 4 | PDF generation + share flow, invoice status tracking (sent/paid/overdue), payment recording | Generate and share a real PDF invoice; mark it paid |

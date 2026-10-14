@@ -2,11 +2,11 @@
 
 ## Data protection
 
-- **Encryption in transit:** all network calls (Firebase SDK, exchange-rate API) go over HTTPS.
+- **Encryption in transit:** all network calls (Supabase SDK, exchange-rate API) go over HTTPS.
 - **Encryption at rest:** local Room database considered for SQLCipher (encrypted SQLite) given it holds client PII and financial data; at minimum, Android's standard app-sandboxed storage plus device-level encryption is relied upon, with SQLCipher noted as a hardening upgrade if time allows.
-- **Authentication:** Firebase Authentication (email/password + Google sign-in); no financial data accessible without a signed-in session.
-- **Authorization:** Firestore security rules scope every read/write to `request.auth.uid == resource owner's uid` — no user can read another user's clients, invoices, or expenses.
-- **Receipt photos:** stored in Firebase Cloud Storage under a per-user path, governed by matching storage security rules.
+- **Authentication:** Supabase Auth (email/password + Google sign-in); no financial data accessible without a signed-in session.
+- **Authorization:** Postgres **Row Level Security (RLS)** policies scope every read/write to `auth.uid() = user_id` on each table — no user can read another user's clients, invoices, or expenses.
+- **Receipt photos:** stored in Supabase Storage under a per-user path, governed by matching storage RLS policies.
 
 ## Privacy considerations
 
@@ -30,8 +30,8 @@ It does **not** mean certified compliance with any specific country's fiscal/tax
 | Risk | Mitigation |
 |---|---|
 | Lost/stolen device exposing financial data | Device-level lock + app data sandboxed; optional in-app PIN/biometric lock as a stretch feature |
-| Firestore misconfiguration exposing other users' data | Security rules unit-tested against the Firebase emulator before release |
-| Man-in-the-middle on API/Firebase calls | Enforced HTTPS by default via Firebase SDK / OkHttp config |
+| RLS misconfiguration exposing other users' data | Row Level Security policies tested against the local Supabase CLI stack before release |
+| Man-in-the-middle on API/Supabase calls | Enforced HTTPS by default via Supabase SDK / OkHttp config |
 | Receipt photos containing sensitive info (e.g., card numbers) | User-controlled; app does not OCR/parse receipt contents, purely stores the image |
 
 Next: [15 — Deployment and Maintenance](15-deployment-and-maintenance.md)

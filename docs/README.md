@@ -14,7 +14,7 @@ This folder plans the system from problem statement through deployment. Read the
 | 06 | [Functional & Non-Functional Requirements](06-functional-requirements.md) | Detailed feature and quality requirements |
 | 07 | [System Architecture](07-system-architecture.md) | App architecture, layers, tech stack |
 | 08 | [Database Design](08-database-design.md) | Entities, schema, relationships |
-| 09 | [APIs and Integrations](09-api-and-integrations.md) | Exchange rates, Firebase, PDF generation |
+| 09 | [APIs and Integrations](09-api-and-integrations.md) | Exchange rates, Supabase, PDF generation |
 | 10 | [UI/UX and Screens](10-ui-ux-and-screens.md) | Screen map, navigation, design principles |
 | 11 | [Development Methodology](11-development-methodology.md) | Agile process, tooling, branching |
 | 12 | [Timeline and Milestones](12-timeline-and-milestones.md) | Semester-length delivery plan |

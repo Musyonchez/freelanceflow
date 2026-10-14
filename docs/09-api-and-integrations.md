@@ -8,12 +8,12 @@ Candidates (final choice made during implementation based on free-tier limits at
 - **Caching:** every successful fetch is written to the `ExchangeRateCache` table ([08-database-design](08-database-design.md)); when offline or rate-limited, the app falls back to the most recent cached rate and visibly labels it with its fetch timestamp ("rate as of 14 Sep, 09:12").
 - **Failure handling:** if no cached rate exists and the API is unreachable, the invoice draft is still allowed to save (as a draft) but cannot be finalized/sent until a rate is available — this prevents shipping an invoice with a fabricated conversion.
 
-## Firebase
+## Supabase
 
-- **Authentication:** email/password + Google sign-in, single account per user.
-- **Cloud Firestore:** mirrors the Room schema per authenticated user (`/users/{uid}/clients`, `/projects`, `/invoices`, `/expenses`, ...); security rules restrict all reads/writes to `request.auth.uid == uid`.
-- **Cloud Storage:** stores expense receipt photos and generated invoice PDFs, referenced by URL from Firestore/Room.
-- **Cloud Messaging (optional/stretch):** push notification for overdue invoices if the device is online; local `WorkManager`-scheduled notifications cover the offline case.
+- **Auth:** email/password + Google sign-in (Supabase Auth, OAuth provider), single account per user.
+- **Postgres database:** mirrors the Room schema per authenticated user — one `clients`/`projects`/`invoices`/`expenses`/... table each, every row scoped by a `user_id` column; **Row Level Security (RLS)** policies restrict all reads/writes to `auth.uid() = user_id`. Accessed from the app via `supabase-kt` (or plain PostgREST calls through Retrofit) rather than a custom server.
+- **Storage:** stores expense receipt photos and generated invoice PDFs in per-user buckets/paths, governed by matching storage RLS policies, referenced by URL from Postgres/Room.
+- **Realtime / push (optional/stretch):** Supabase Realtime could notify other signed-in sessions of changes if the device is online; local `WorkManager`-scheduled notifications cover the offline case for overdue invoices.
 
 ## PDF generation
 

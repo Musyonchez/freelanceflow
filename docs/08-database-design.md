@@ -20,7 +20,7 @@ ExchangeRateCache — independent lookup table, currency pair + timestamp
 ### User
 | Field | Type | Notes |
 |---|---|---|
-| id | UUID (PK) | Firebase Auth UID |
+| id | UUID (PK) | Supabase Auth user id |
 | name, email | text | |
 | baseCurrency | text (ISO code) | user's home/reporting currency |
 | createdAt | datetime | |
@@ -100,7 +100,7 @@ ExchangeRateCache — independent lookup table, currency pair + timestamp
 | amount, currency | decimal, text | |
 | category | text | e.g. software, hardware, travel |
 | date | date | |
-| receiptPhotoUrl | text, nullable | Firebase Storage reference |
+| receiptPhotoUrl | text, nullable | Supabase Storage reference |
 | deductible | boolean | |
 | deductiblePercent | decimal, default 100 | partial deductions |
 

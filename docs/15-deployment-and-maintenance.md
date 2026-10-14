@@ -15,19 +15,19 @@
 
 | Environment | Purpose |
 |---|---|
-| Local (debug) | Day-to-day development, connected to a Firebase **dev** project |
-| Firebase dev project | Isolated Auth/Firestore/Storage instance for testing, safe to reset |
-| Firebase prod-equivalent project | Used for the final demo build, so demo data doesn't mix with dev/test junk data |
+| Local (debug) | Day-to-day development, connected to a Supabase **dev** project |
+| Supabase dev project | Isolated Auth/Postgres/Storage instance for testing, safe to reset |
+| Supabase prod-equivalent project | Used for the final demo build, so demo data doesn't mix with dev/test junk data |
 
 ## Post-launch / post-submission maintenance plan
 
 Even as an academic deliverable, the system is designed so it *could* be maintained:
 - **Backlog carried forward:** stretch items explicitly deferred in [16-risks-and-mitigation](16-risks-and-mitigation.md) (e.g., payment gateway integration, multi-device conflict resolution, iOS/web clients) are documented as a "Phase 2" backlog rather than lost decisions.
-- **Crash/error visibility:** Firebase Crashlytics recommended as a low-effort addition if time allows, to catch issues that manual testing misses.
+- **Crash/error visibility:** a lightweight crash reporter (e.g., Sentry's free tier) recommended as a low-effort addition if time allows, to catch issues that manual testing misses.
 - **Data migration discipline:** Room schema changes go through Room's migration system rather than destructive rebuilds, so a future update wouldn't wipe a real freelancer's invoice history.
 
 ## Rollback approach
 
-Since distribution is a shared APK rather than a live server, "rollback" means keeping the previous milestone's signed build available; for the Firebase backend, Firestore security rules and any Cloud Functions (if added later) are version-controlled so a bad rule change can be reverted quickly.
+Since distribution is a shared APK rather than a live server, "rollback" means keeping the previous milestone's signed build available; for the Supabase backend, RLS policies and any database migrations are version-controlled (via the Supabase CLI's migration files) so a bad policy or schema change can be reverted quickly.
 
 Next: [16 — Risks and Mitigation](16-risks-and-mitigation.md)

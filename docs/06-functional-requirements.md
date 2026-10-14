@@ -61,7 +61,7 @@
 |---|---|
 | **Performance** | Core screens (dashboard, client list, project list) load from local cache in under 1 second on a mid-range device. |
 | **Offline-first** | No core CRUD flow requires connectivity; only exchange-rate refresh and cloud sync require it. |
-| **Security** | Financial data encrypted at rest on-device; all network calls over HTTPS; Firebase security rules restrict data access to the authenticated owner. |
+| **Security** | Financial data encrypted at rest on-device; all network calls over HTTPS; Supabase Row Level Security restricts data access to the authenticated owner. |
 | **Usability** | Primary flows (add client, log expense, create invoice) achievable in ≤5 taps/screens from the dashboard. |
 | **Accessibility** | Material 3 components, minimum touch target sizes, content descriptions for screen readers, supports system font scaling and dark mode. |
 | **Reliability** | No data loss on interrupted sync; local DB is always the source of truth until a sync confirms. |

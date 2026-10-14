@@ -56,9 +56,9 @@ Full scope boundaries and stated limitations (e.g., exchange rates depend on a t
 
 An **Agile, Scrum-inspired methodology** adapted for a solo/small student team: 2-week sprints across the semester, a prioritized backlog tracked on a GitHub Projects board, a working build demoed at the end of each sprint, and a short retrospective per sprint. Client and project management are built first as the foundation, since invoicing and reporting depend on that data existing — de-risking the most uncertain parts of the system (exchange-rate integration, PDF generation, offline sync) early through incremental, testable slices rather than specifying everything up front.
 
-**Architecture:** native Android app (Kotlin, Jetpack Compose, Material 3) using an offline-first, layered MVVM/Clean Architecture: a local Room database as the source of truth, Firebase (Authentication, Cloud Firestore, Cloud Storage) for cloud sync and backup, Retrofit for exchange-rate API calls, WorkManager for background sync, and on-device PDF generation for invoices.
+**Architecture:** native Android app (Kotlin, Jetpack Compose, Material 3) using an offline-first, layered MVVM/Clean Architecture: a local Room database as the source of truth, Supabase (Auth, Postgres database, Storage) for cloud sync and backup, Retrofit for exchange-rate API calls, WorkManager for background sync, and on-device PDF generation for invoices.
 
-**Tools/technologies:** Kotlin, Jetpack Compose, Room, Hilt, Retrofit, Firebase (free tier), a free exchange-rate API (e.g., Frankfurter.app), Figma for design, GitHub + GitHub Actions for version control and CI.
+**Tools/technologies:** Kotlin, Jetpack Compose, Room, Hilt, Retrofit, Supabase (free tier), a free exchange-rate API (e.g., Frankfurter.app), Figma for design, GitHub + GitHub Actions for version control and CI.
 
 Full architecture, database design, and methodology detail: [docs/07-system-architecture.md](../docs/07-system-architecture.md), [docs/08-database-design.md](../docs/08-database-design.md), [docs/11-development-methodology.md](../docs/11-development-methodology.md).
 
@@ -79,7 +79,7 @@ Full week-by-week breakdown and a Gantt-style summary: [docs/12-timeline-and-mil
 
 ## Resources Required
 
-Android Studio, Git/GitHub (with GitHub Actions), Figma, Firebase (free Spark tier), a free-tier exchange-rate API, a development machine capable of running the Android emulator, and at least one physical Android device for realistic testing. All tooling required is available at no cost at student-project scale.
+Android Studio, Git/GitHub (with GitHub Actions), Figma, Supabase (free tier), a free-tier exchange-rate API, a development machine capable of running the Android emulator, and at least one physical Android device for realistic testing. All tooling required is available at no cost at student-project scale.
 
 Full list: [docs/17-resources-required.md](../docs/17-resources-required.md).
 
@@ -91,7 +91,7 @@ Full risk register: [docs/16-risks-and-mitigation.md](../docs/16-risks-and-mitig
 
 ## References
 
-See [docs/18-references.md](../docs/18-references.md) for the full APA 7 reference list (Android/Firebase documentation, Material Design guidelines, freelance-economy industry reports, and applicable data-protection legislation). Statistics cited in the final written report should be verified against the latest edition of each source before submission.
+See [docs/18-references.md](../docs/18-references.md) for the full APA 7 reference list (Android/Supabase documentation, Material Design guidelines, freelance-economy industry reports, and applicable data-protection legislation). Statistics cited in the final written report should be verified against the latest edition of each source before submission.
 
 ## GitHub/Git
 
