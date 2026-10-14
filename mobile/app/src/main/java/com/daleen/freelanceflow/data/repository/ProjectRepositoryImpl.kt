@@ -1,7 +1,9 @@
 package com.daleen.freelanceflow.data.repository
 
 import com.daleen.freelanceflow.data.local.dao.ProjectDao
+import com.daleen.freelanceflow.data.local.dao.TombstoneDao
 import com.daleen.freelanceflow.data.local.entity.ProjectEntity
+import com.daleen.freelanceflow.data.local.entity.TombstoneEntity
 import com.daleen.freelanceflow.domain.model.Money
 import com.daleen.freelanceflow.domain.model.Project
 import com.daleen.freelanceflow.domain.model.ProjectStatus
@@ -15,6 +17,7 @@ import com.daleen.freelanceflow.data.local.entity.RateType as EntityRateType
 
 class ProjectRepositoryImpl @Inject constructor(
     private val projectDao: ProjectDao,
+    private val tombstoneDao: TombstoneDao,
 ) : ProjectRepository {
 
     override fun observeAll(): Flow<List<Project>> =
@@ -36,7 +39,10 @@ class ProjectRepositoryImpl @Inject constructor(
     override suspend fun setStatus(id: String, status: ProjectStatus) =
         projectDao.setStatus(id, status.toEntity())
 
-    override suspend fun delete(project: Project) = projectDao.delete(project.toEntity())
+    override suspend fun delete(project: Project) {
+        projectDao.delete(project.toEntity())
+        tombstoneDao.insert(TombstoneEntity("projects", project.id, System.currentTimeMillis()))
+    }
 }
 
 private fun ProjectStatus.toEntity(): EntityProjectStatus = EntityProjectStatus.valueOf(name)

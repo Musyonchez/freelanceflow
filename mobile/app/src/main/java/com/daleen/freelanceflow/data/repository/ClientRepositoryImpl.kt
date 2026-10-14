@@ -1,7 +1,9 @@
 package com.daleen.freelanceflow.data.repository
 
 import com.daleen.freelanceflow.data.local.dao.ClientDao
+import com.daleen.freelanceflow.data.local.dao.TombstoneDao
 import com.daleen.freelanceflow.data.local.entity.ClientEntity
+import com.daleen.freelanceflow.data.local.entity.TombstoneEntity
 import com.daleen.freelanceflow.domain.model.Client
 import com.daleen.freelanceflow.domain.model.ClientStatus
 import com.daleen.freelanceflow.domain.repository.ClientRepository
@@ -12,6 +14,7 @@ import com.daleen.freelanceflow.data.local.entity.ClientStatus as EntityClientSt
 
 class ClientRepositoryImpl @Inject constructor(
     private val clientDao: ClientDao,
+    private val tombstoneDao: TombstoneDao,
 ) : ClientRepository {
 
     override fun observeByStatus(status: ClientStatus): Flow<List<Client>> =
@@ -31,7 +34,10 @@ class ClientRepositoryImpl @Inject constructor(
 
     override suspend fun restore(id: String) = clientDao.setStatus(id, EntityClientStatus.ACTIVE)
 
-    override suspend fun delete(client: Client) = clientDao.delete(client.toEntity())
+    override suspend fun delete(client: Client) {
+        clientDao.delete(client.toEntity())
+        tombstoneDao.insert(TombstoneEntity("clients", client.id, System.currentTimeMillis()))
+    }
 }
 
 private fun ClientStatus.toEntity(): EntityClientStatus = EntityClientStatus.valueOf(name)

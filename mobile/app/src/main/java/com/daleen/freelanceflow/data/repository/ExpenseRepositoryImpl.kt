@@ -1,7 +1,9 @@
 package com.daleen.freelanceflow.data.repository
 
 import com.daleen.freelanceflow.data.local.dao.ExpenseDao
+import com.daleen.freelanceflow.data.local.dao.TombstoneDao
 import com.daleen.freelanceflow.data.local.entity.ExpenseEntity
+import com.daleen.freelanceflow.data.local.entity.TombstoneEntity
 import com.daleen.freelanceflow.domain.model.Expense
 import com.daleen.freelanceflow.domain.model.Money
 import com.daleen.freelanceflow.domain.repository.ExpenseRepository
@@ -11,6 +13,7 @@ import javax.inject.Inject
 
 class ExpenseRepositoryImpl @Inject constructor(
     private val expenseDao: ExpenseDao,
+    private val tombstoneDao: TombstoneDao,
 ) : ExpenseRepository {
 
     override fun observeAll(): Flow<List<Expense>> =
@@ -18,7 +21,10 @@ class ExpenseRepositoryImpl @Inject constructor(
 
     override suspend fun upsert(expense: Expense) = expenseDao.upsert(expense.toEntity())
 
-    override suspend fun delete(expense: Expense) = expenseDao.delete(expense.toEntity())
+    override suspend fun delete(expense: Expense) {
+        expenseDao.delete(expense.toEntity())
+        tombstoneDao.insert(TombstoneEntity("expenses", expense.id, System.currentTimeMillis()))
+    }
 }
 
 private fun ExpenseEntity.toDomain() = Expense(

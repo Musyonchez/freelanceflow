@@ -9,6 +9,7 @@ import com.daleen.freelanceflow.data.local.dao.PaymentDao
 import com.daleen.freelanceflow.data.local.dao.ProjectDao
 import com.daleen.freelanceflow.data.local.dao.TaxProfileDao
 import com.daleen.freelanceflow.data.local.dao.TimeEntryDao
+import com.daleen.freelanceflow.data.local.dao.TombstoneDao
 import com.daleen.freelanceflow.data.local.entity.ClientEntity
 import com.daleen.freelanceflow.data.local.entity.ClientStatus
 import com.daleen.freelanceflow.data.local.entity.ExpenseEntity
@@ -52,6 +53,7 @@ class SyncRepositoryImpl @Inject constructor(
     private val expenseDao: ExpenseDao,
     private val taxProfileDao: TaxProfileDao,
     private val businessProfileRepository: BusinessProfileRepository,
+    private val tombstoneDao: TombstoneDao,
 ) : SyncRepository {
 
     override suspend fun syncAll(): Result<Unit> = runCatching {
@@ -73,6 +75,7 @@ class SyncRepositoryImpl @Inject constructor(
         if (local.isNotEmpty()) {
             supabaseClient.postgrest.from("clients").upsert(local.map { it.toDto(userId) })
         }
+        pushDeletions("clients")
         val remote = supabaseClient.postgrest.from("clients")
             .select { filter { ClientDto::userId eq userId } }
             .decodeList<ClientDto>()
@@ -84,6 +87,7 @@ class SyncRepositoryImpl @Inject constructor(
         if (local.isNotEmpty()) {
             supabaseClient.postgrest.from("projects").upsert(local.map { it.toDto(userId) })
         }
+        pushDeletions("projects")
         val remote = supabaseClient.postgrest.from("projects")
             .select { filter { ProjectDto::userId eq userId } }
             .decodeList<ProjectDto>()
@@ -95,6 +99,7 @@ class SyncRepositoryImpl @Inject constructor(
         if (local.isNotEmpty()) {
             supabaseClient.postgrest.from("time_entries").upsert(local.map { it.toDto(userId) })
         }
+        pushDeletions("time_entries")
         val remote = supabaseClient.postgrest.from("time_entries")
             .select { filter { TimeEntryDto::userId eq userId } }
             .decodeList<TimeEntryDto>()
@@ -139,6 +144,7 @@ class SyncRepositoryImpl @Inject constructor(
         if (local.isNotEmpty()) {
             supabaseClient.postgrest.from("expenses").upsert(local.map { it.toDto(userId) })
         }
+        pushDeletions("expenses")
         val remote = supabaseClient.postgrest.from("expenses")
             .select { filter { ExpenseDto::userId eq userId } }
             .decodeList<ExpenseDto>()
@@ -170,6 +176,20 @@ class SyncRepositoryImpl @Inject constructor(
             if (remote.businessName != businessName) businessProfileRepository.setBusinessName(remote.businessName)
             if (remote.baseCurrency != baseCurrency) businessProfileRepository.setBaseCurrency(remote.baseCurrency)
         }
+    }
+
+    /**
+     * Deletes rows tombstoned locally (hard-deleted since the last sync) from
+     * [table] on the server, then clears those tombstones. Must run before
+     * the pull step for [table], otherwise the pull would re-fetch the
+     * still-present remote row and resurrect it locally.
+     */
+    private suspend fun pushDeletions(table: String) {
+        val tombstones = tombstoneDao.getAllOnce(table)
+        if (tombstones.isEmpty()) return
+        val ids = tombstones.map { it.recordId }
+        supabaseClient.postgrest.from(table).delete { filter { isIn("id", ids) } }
+        tombstoneDao.clear(table, ids)
     }
 
     private inline fun safely(table: String, block: () -> Unit) {

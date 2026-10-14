@@ -12,6 +12,7 @@ import com.daleen.freelanceflow.data.local.dao.PaymentDao
 import com.daleen.freelanceflow.data.local.dao.ProjectDao
 import com.daleen.freelanceflow.data.local.dao.TaxProfileDao
 import com.daleen.freelanceflow.data.local.dao.TimeEntryDao
+import com.daleen.freelanceflow.data.local.dao.TombstoneDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,7 +30,11 @@ object DatabaseModule {
             context,
             FreelanceFlowDatabase::class.java,
             FreelanceFlowDatabase.DATABASE_NAME,
-        ).build()
+        )
+            // No migrations written yet; acceptable pre-release since all data is
+            // backed up to Supabase and resyncs on next sign-in after a local wipe.
+            .fallbackToDestructiveMigration(dropAllTables = true)
+            .build()
 
     @Provides
     fun provideClientDao(db: FreelanceFlowDatabase): ClientDao = db.clientDao()
@@ -57,4 +62,7 @@ object DatabaseModule {
 
     @Provides
     fun provideExchangeRateDao(db: FreelanceFlowDatabase): ExchangeRateDao = db.exchangeRateDao()
+
+    @Provides
+    fun provideTombstoneDao(db: FreelanceFlowDatabase): TombstoneDao = db.tombstoneDao()
 }

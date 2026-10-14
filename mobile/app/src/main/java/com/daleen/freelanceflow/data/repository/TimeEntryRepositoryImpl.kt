@@ -1,7 +1,9 @@
 package com.daleen.freelanceflow.data.repository
 
 import com.daleen.freelanceflow.data.local.dao.TimeEntryDao
+import com.daleen.freelanceflow.data.local.dao.TombstoneDao
 import com.daleen.freelanceflow.data.local.entity.TimeEntryEntity
+import com.daleen.freelanceflow.data.local.entity.TombstoneEntity
 import com.daleen.freelanceflow.domain.model.TimeEntry
 import com.daleen.freelanceflow.domain.repository.TimeEntryRepository
 import kotlinx.coroutines.flow.Flow
@@ -12,6 +14,7 @@ import kotlin.math.roundToInt
 
 class TimeEntryRepositoryImpl @Inject constructor(
     private val timeEntryDao: TimeEntryDao,
+    private val tombstoneDao: TombstoneDao,
 ) : TimeEntryRepository {
 
     override fun observeByProject(projectId: String): Flow<List<TimeEntry>> =
@@ -42,7 +45,10 @@ class TimeEntryRepositoryImpl @Inject constructor(
 
     override suspend fun addManualEntry(entry: TimeEntry) = timeEntryDao.upsert(entry.toEntity())
 
-    override suspend fun delete(entry: TimeEntry) = timeEntryDao.delete(entry.toEntity())
+    override suspend fun delete(entry: TimeEntry) {
+        timeEntryDao.delete(entry.toEntity())
+        tombstoneDao.insert(TombstoneEntity("time_entries", entry.id, System.currentTimeMillis()))
+    }
 
     private suspend fun stopEntity(entity: TimeEntryEntity) {
         val now = System.currentTimeMillis()
