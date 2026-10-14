@@ -26,6 +26,7 @@ Not yet built: receipt photo capture, reporting/CSV export, deletion-aware sync.
 | Path | Contents |
 |---|---|
 | [`docs/`](docs/) | Full system design docs — read [`docs/README.md`](docs/README.md) first, documents are numbered and build on each other |
+| [`guide/`](guide/) | Beginner's walkthrough — from opening the GitHub page to cloning, setup, running, and using the app, start to finish |
 | [`mobile/`](mobile/) | The Android Studio project (Kotlin, Jetpack Compose, Hilt, Room) |
 | [`supabase/`](supabase/) | `schema.sql` — the Postgres schema + RLS policies backing cloud sync, run once in a fresh Supabase project's SQL editor |
 | [`miscellaneous/`](miscellaneous/) | The original ChatGPT-generated concept and the university's concept-format submission |
@@ -40,6 +41,8 @@ Offline-first, layered (Clean Architecture) + MVVM. Room is always the local sou
 2. Create a Supabase project and run [`supabase/schema.sql`](supabase/schema.sql) in its SQL editor.
 3. In `mobile/local.properties`, set `SUPABASE_URL` and `SUPABASE_ANON_KEY` from the project's Settings → API page (never commit this file — it's gitignored).
 4. Build and run.
+
+New to the project or to Android development? [`guide/`](guide/README.md) walks through every one of these steps in much more detail, starting from the GitHub page itself.
 
 ## Documentation
 
