@@ -15,6 +15,9 @@ interface InvoiceDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(invoice: InvoiceEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertAll(invoices: List<InvoiceEntity>)
+
     @Update
     suspend fun update(invoice: InvoiceEntity)
 
@@ -23,6 +26,9 @@ interface InvoiceDao {
 
     @Query("SELECT * FROM invoices ORDER BY issueDate DESC")
     fun observeAll(): Flow<List<InvoiceEntity>>
+
+    @Query("SELECT * FROM invoices")
+    suspend fun getAllOnce(): List<InvoiceEntity>
 
     @Query("SELECT * FROM invoices WHERE clientId = :clientId ORDER BY issueDate DESC")
     fun observeByClient(clientId: String): Flow<List<InvoiceEntity>>

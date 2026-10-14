@@ -18,4 +18,7 @@ interface InvoiceItemDao {
 
     @Query("SELECT * FROM invoice_items WHERE invoiceId = :invoiceId")
     fun observeByInvoice(invoiceId: String): Flow<List<InvoiceItemEntity>>
+
+    @Query("SELECT * FROM invoice_items")
+    suspend fun getAllOnce(): List<InvoiceItemEntity>
 }

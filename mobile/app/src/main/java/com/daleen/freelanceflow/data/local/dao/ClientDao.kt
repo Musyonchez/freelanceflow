@@ -15,6 +15,9 @@ interface ClientDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(client: ClientEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertAll(clients: List<ClientEntity>)
+
     @Update
     suspend fun update(client: ClientEntity)
 
@@ -26,6 +29,9 @@ interface ClientDao {
 
     @Query("SELECT * FROM clients ORDER BY name ASC")
     fun observeAll(): Flow<List<ClientEntity>>
+
+    @Query("SELECT * FROM clients")
+    suspend fun getAllOnce(): List<ClientEntity>
 
     @Query("SELECT * FROM clients WHERE id = :id")
     fun observeById(id: String): Flow<ClientEntity?>

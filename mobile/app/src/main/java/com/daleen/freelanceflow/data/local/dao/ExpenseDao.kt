@@ -14,6 +14,9 @@ interface ExpenseDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(expense: ExpenseEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertAll(expenses: List<ExpenseEntity>)
+
     @Update
     suspend fun update(expense: ExpenseEntity)
 
@@ -22,6 +25,9 @@ interface ExpenseDao {
 
     @Query("SELECT * FROM expenses ORDER BY date DESC")
     fun observeAll(): Flow<List<ExpenseEntity>>
+
+    @Query("SELECT * FROM expenses")
+    suspend fun getAllOnce(): List<ExpenseEntity>
 
     @Query("SELECT * FROM expenses WHERE projectId = :projectId ORDER BY date DESC")
     fun observeByProject(projectId: String): Flow<List<ExpenseEntity>>

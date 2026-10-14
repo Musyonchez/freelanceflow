@@ -12,6 +12,12 @@ interface PaymentDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(payment: PaymentEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertAll(payments: List<PaymentEntity>)
+
     @Query("SELECT * FROM payments WHERE invoiceId = :invoiceId ORDER BY paidDate DESC")
     fun observeByInvoice(invoiceId: String): Flow<List<PaymentEntity>>
+
+    @Query("SELECT * FROM payments")
+    suspend fun getAllOnce(): List<PaymentEntity>
 }

@@ -14,6 +14,9 @@ interface TimeEntryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(entry: TimeEntryEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertAll(entries: List<TimeEntryEntity>)
+
     @Update
     suspend fun update(entry: TimeEntryEntity)
 
@@ -22,6 +25,9 @@ interface TimeEntryDao {
 
     @Query("SELECT * FROM time_entries WHERE projectId = :projectId ORDER BY startTime DESC")
     fun observeByProject(projectId: String): Flow<List<TimeEntryEntity>>
+
+    @Query("SELECT * FROM time_entries")
+    suspend fun getAllOnce(): List<TimeEntryEntity>
 
     @Query(
         "SELECT * FROM time_entries WHERE projectId = :projectId AND billed = 0 " +

@@ -15,6 +15,9 @@ interface ProjectDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(project: ProjectEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertAll(projects: List<ProjectEntity>)
+
     @Update
     suspend fun update(project: ProjectEntity)
 
@@ -23,6 +26,9 @@ interface ProjectDao {
 
     @Query("SELECT * FROM projects ORDER BY createdAt DESC")
     fun observeAll(): Flow<List<ProjectEntity>>
+
+    @Query("SELECT * FROM projects")
+    suspend fun getAllOnce(): List<ProjectEntity>
 
     @Query("SELECT * FROM projects WHERE clientId = :clientId ORDER BY createdAt DESC")
     fun observeByClient(clientId: String): Flow<List<ProjectEntity>>

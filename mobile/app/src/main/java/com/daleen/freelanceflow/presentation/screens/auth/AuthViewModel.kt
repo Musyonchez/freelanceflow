@@ -2,6 +2,7 @@ package com.daleen.freelanceflow.presentation.screens.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.daleen.freelanceflow.data.sync.SyncScheduler
 import com.daleen.freelanceflow.domain.model.AuthState
 import com.daleen.freelanceflow.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -9,6 +10,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -16,10 +18,19 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val authRepository: AuthRepository,
+    private val syncScheduler: SyncScheduler,
 ) : ViewModel() {
 
     val authState: StateFlow<AuthState> = authRepository.authState
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AuthState.Loading)
+
+    init {
+        viewModelScope.launch {
+            authState.collectLatest { state ->
+                if (state is AuthState.SignedIn) syncScheduler.syncNow()
+            }
+        }
+    }
 
     private val _formState = MutableStateFlow(AuthFormState())
     val formState: StateFlow<AuthFormState> = _formState
