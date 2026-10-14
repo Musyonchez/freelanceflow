@@ -1,6 +1,6 @@
 # 19 — UI Design System
 
-This document transcribes the visual language from the Figma Make export (`hold/extracted/`) into a concrete, Compose-ready design system. Per the authority rule for this pass: **functionality, screen structure, and data stay exactly as implemented in the app today** ([10-ui-ux-and-screens](10-ui-ux-and-screens.md)); **only visual styling — color, type, spacing, shape, elevation, iconography, component skin — comes from the Figma mock.** The app's current theme (`Color.kt`, `Theme.kt`, `Type.kt`) is the untouched Android Studio template default, so nothing there is being "preserved" — this is a wholesale replacement.
+This document transcribes the visual language from the Figma Make export (`miscellaneous/figma-ui-export/`) into a concrete, Compose-ready design system. Per the authority rule for this pass: **functionality, screen structure, and data stay exactly as implemented in the app today** ([10-ui-ux-and-screens](10-ui-ux-and-screens.md)); **only visual styling — color, type, spacing, shape, elevation, iconography, component skin — comes from the Figma mock.** The app's current theme (`Color.kt`, `Theme.kt`, `Type.kt`) is the untouched Android Studio template default, so nothing there is being "preserved" — this is a wholesale replacement.
 
 All token names below (`brand`, `brandDark`, `mint`, `canvas`, etc.) are used identically in [20-ui-migration-plan](20-ui-migration-plan.md) — treat this doc as the single source of truth for names and values.
 
