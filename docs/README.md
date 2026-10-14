@@ -24,5 +24,7 @@ This folder plans the system from problem statement through deployment. Read the
 | 16 | [Risks and Mitigation](16-risks-and-mitigation.md) | What could go wrong and the response |
 | 17 | [Resources Required](17-resources-required.md) | Tools, services, skills, costs |
 | 18 | [References](18-references.md) | Sources (APA 7) |
+| 19 | [UI Design System](19-ui-design-system.md) | Color, type, spacing, shape, elevation and component specs (from the Figma mock) |
+| 20 | [UI Migration Plan](20-ui-migration-plan.md) | Screen-by-screen plan to re-skin the app to that design system |
 
 The original ChatGPT-generated concept and the university's concept-format PDF are kept, unedited, in [`../miscellaneous/`](../miscellaneous/), alongside a filled-in response to that format.
