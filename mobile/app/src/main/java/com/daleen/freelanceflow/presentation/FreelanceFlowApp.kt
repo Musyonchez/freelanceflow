@@ -1,23 +1,32 @@
 package com.daleen.freelanceflow.presentation
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -29,6 +38,13 @@ import com.daleen.freelanceflow.presentation.navigation.FreelanceFlowDestination
 import com.daleen.freelanceflow.presentation.navigation.FreelanceFlowNavHost
 import com.daleen.freelanceflow.presentation.screens.auth.AuthScreen
 import com.daleen.freelanceflow.presentation.screens.auth.AuthViewModel
+import com.daleen.freelanceflow.ui.theme.Brand
+import com.daleen.freelanceflow.ui.theme.Canvas
+import com.daleen.freelanceflow.ui.theme.Ink
+import com.daleen.freelanceflow.ui.theme.Line
+import com.daleen.freelanceflow.ui.theme.NavInactive
+import com.daleen.freelanceflow.ui.theme.Shapes
+import com.daleen.freelanceflow.ui.theme.Surface
 
 @Composable
 fun FreelanceFlowApp(authViewModel: AuthViewModel = hiltViewModel()) {
@@ -57,8 +73,19 @@ private fun SignedInApp(onSignOut: () -> Unit) {
 
             TopAppBar(
                 title = { Text(currentDestination?.label ?: "FreelanceFlow") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Canvas,
+                    titleContentColor = Ink,
+                    actionIconContentColor = Ink,
+                ),
                 actions = {
-                    IconButton(onClick = onSignOut) {
+                    IconButton(
+                        onClick = onSignOut,
+                        modifier = Modifier
+                            .size(36.dp)
+                            .border(1.dp, Line, Shapes.small)
+                            .background(Surface, Shapes.small),
+                    ) {
                         Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Sign out")
                     }
                 },
@@ -68,23 +95,33 @@ private fun SignedInApp(onSignOut: () -> Unit) {
             val backStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = backStackEntry?.destination
 
-            NavigationBar {
-                FreelanceFlowDestination.entries.forEach { destination ->
-                    val selected = currentRoute?.hierarchy?.any { it.route == destination.route } == true
-                    NavigationBarItem(
-                        selected = selected,
-                        onClick = {
-                            navController.navigate(destination.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+            Column {
+                HorizontalDivider(thickness = 1.dp, color = Line)
+                NavigationBar(containerColor = Surface.copy(alpha = 0.95f)) {
+                    FreelanceFlowDestination.entries.forEach { destination ->
+                        val selected = currentRoute?.hierarchy?.any { it.route == destination.route } == true
+                        NavigationBarItem(
+                            selected = selected,
+                            onClick = {
+                                navController.navigate(destination.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        icon = { Icon(destination.icon, contentDescription = destination.label) },
-                        label = { Text(destination.label) },
-                    )
+                            },
+                            icon = { Icon(destination.icon, contentDescription = destination.label) },
+                            label = { Text(destination.label) },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = Brand,
+                                selectedTextColor = Brand,
+                                unselectedIconColor = NavInactive,
+                                unselectedTextColor = NavInactive,
+                                indicatorColor = Color.Transparent,
+                            ),
+                        )
+                    }
                 }
             }
         },
