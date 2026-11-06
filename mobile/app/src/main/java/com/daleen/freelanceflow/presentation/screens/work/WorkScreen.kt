@@ -1,5 +1,6 @@
 package com.daleen.freelanceflow.presentation.screens.work
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,18 +9,24 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -32,6 +39,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -39,6 +48,23 @@ import com.daleen.freelanceflow.domain.model.Project
 import com.daleen.freelanceflow.domain.model.RateType
 import com.daleen.freelanceflow.domain.model.TimeEntry
 import com.daleen.freelanceflow.presentation.components.PlaceholderScreen
+import com.daleen.freelanceflow.ui.theme.Brand
+import com.daleen.freelanceflow.ui.theme.BrandDark
+import com.daleen.freelanceflow.ui.theme.FabShape
+import com.daleen.freelanceflow.ui.theme.LiveDotRunning
+import com.daleen.freelanceflow.ui.theme.Line
+import com.daleen.freelanceflow.ui.theme.Mint
+import com.daleen.freelanceflow.ui.theme.Muted
+import com.daleen.freelanceflow.ui.theme.ShadowFabColor
+import com.daleen.freelanceflow.ui.theme.ShadowFabElevation
+import com.daleen.freelanceflow.ui.theme.ShadowPanelColor
+import com.daleen.freelanceflow.ui.theme.ShadowPanelElevation
+import com.daleen.freelanceflow.ui.theme.Shapes
+import com.daleen.freelanceflow.ui.theme.Surface
+import com.daleen.freelanceflow.ui.theme.TimerControlShape
+import com.daleen.freelanceflow.ui.theme.TimerCardShape
+import com.daleen.freelanceflow.ui.theme.TimerDark
+import com.daleen.freelanceflow.ui.theme.TimerSubtextWeak
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,29 +102,50 @@ fun WorkScreen(viewModel: ProjectsViewModel = hiltViewModel(), modifier: Modifie
                         )
                     }
                 }
-                items(projects, key = { it.id }) { project ->
-                    ProjectRow(
-                        project = project,
-                        clientName = clientNameById[project.clientId] ?: "Unknown client",
-                        isTimerRunningHere = runningEntry?.projectId == project.id,
-                        onClick = { viewModel.showEditForm(project) },
-                        onToggleTimer = {
-                            if (runningEntry?.projectId == project.id) {
-                                viewModel.stopTimer()
-                            } else {
-                                viewModel.startTimer(project.id)
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp, vertical = 8.dp)
+                            .shadow(ShadowPanelElevation, Shapes.large, ambientColor = ShadowPanelColor, spotColor = ShadowPanelColor),
+                        shape = Shapes.large,
+                        colors = CardDefaults.cardColors(containerColor = Surface),
+                    ) {
+                        Column {
+                            projects.forEachIndexed { index, project ->
+                                if (index > 0) {
+                                    HorizontalDivider(thickness = 1.dp, color = Line)
+                                }
+                                ProjectRow(
+                                    project = project,
+                                    clientName = clientNameById[project.clientId] ?: "Unknown client",
+                                    isTimerRunningHere = runningEntry?.projectId == project.id,
+                                    onClick = { viewModel.showEditForm(project) },
+                                    onToggleTimer = {
+                                        if (runningEntry?.projectId == project.id) {
+                                            viewModel.stopTimer()
+                                        } else {
+                                            viewModel.startTimer(project.id)
+                                        }
+                                    },
+                                )
                             }
-                        },
-                    )
+                        }
+                    }
                 }
             }
         }
 
         FloatingActionButton(
             onClick = { viewModel.showAddForm() },
+            shape = FabShape,
+            containerColor = Brand,
+            contentColor = Color.White,
+            elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 0.dp),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp),
+                .padding(16.dp)
+                .shadow(ShadowFabElevation, FabShape, ambientColor = ShadowFabColor, spotColor = ShadowFabColor),
         ) {
             Icon(Icons.Filled.Add, contentDescription = "Add project")
         }
@@ -134,19 +181,47 @@ private fun RunningTimerCard(
         }
     }
 
-    Card(modifier = modifier.fillMaxWidth()) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = TimerCardShape,
+        colors = CardDefaults.cardColors(containerColor = TimerDark),
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Column {
-                Text("Timer running", style = MaterialTheme.typography.labelMedium)
-                Text(projectName, style = MaterialTheme.typography.titleMedium)
-                Text(formatElapsed(elapsedMillis), style = MaterialTheme.typography.headlineSmall)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(7.dp)
+                            .shadow(4.dp, CircleShape, ambientColor = LiveDotRunning.copy(alpha = .12f), spotColor = LiveDotRunning.copy(alpha = .12f))
+                            .background(LiveDotRunning, CircleShape),
+                    )
+                    Text(
+                        "Timer running",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = TimerSubtextWeak,
+                        modifier = Modifier.padding(start = 6.dp),
+                    )
+                }
+                Text(projectName, style = MaterialTheme.typography.titleMedium, color = Color.White)
+                Text(
+                    formatElapsed(elapsedMillis),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = Color.White,
+                )
             }
-            IconButton(onClick = onStop) {
+            IconButton(
+                onClick = onStop,
+                modifier = Modifier
+                    .size(38.dp)
+                    .background(Mint, TimerControlShape),
+                colors = IconButtonDefaults.iconButtonColors(contentColor = BrandDark),
+            ) {
                 Icon(Icons.Filled.Stop, contentDescription = "Stop timer")
             }
         }
@@ -173,8 +248,12 @@ private fun ProjectRow(
         headlineContent = { Text(project.name) },
         supportingContent = {
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(clientName)
-                Text("${project.rate.format()} ${if (project.rateType == RateType.HOURLY) "/ hr" else "fixed"} · ${project.status.name.lowercase()}")
+                Text(clientName, style = MaterialTheme.typography.bodySmall, color = Muted)
+                Text(
+                    "${project.rate.format()} ${if (project.rateType == RateType.HOURLY) "/ hr" else "fixed"} · ${project.status.name.lowercase()}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Muted,
+                )
             }
         },
         trailingContent = {
@@ -185,8 +264,9 @@ private fun ProjectRow(
                 )
             }
         },
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
         modifier = Modifier
             .clickable(onClick = onClick)
-            .padding(horizontal = 8.dp),
+            .padding(horizontal = 8.dp, vertical = 6.dp),
     )
 }
