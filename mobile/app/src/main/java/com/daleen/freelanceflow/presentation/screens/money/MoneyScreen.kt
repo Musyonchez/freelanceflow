@@ -1,35 +1,42 @@
 package com.daleen.freelanceflow.presentation.screens.money
 
 import android.content.Intent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.Description
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SecondaryTabRow
@@ -47,6 +54,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -58,6 +66,27 @@ import com.daleen.freelanceflow.domain.model.Expense
 import com.daleen.freelanceflow.domain.model.Invoice
 import com.daleen.freelanceflow.domain.model.InvoiceStatus
 import com.daleen.freelanceflow.presentation.components.PlaceholderScreen
+import com.daleen.freelanceflow.ui.theme.ActionSheetShape
+import com.daleen.freelanceflow.ui.theme.Brand
+import com.daleen.freelanceflow.ui.theme.FabShape
+import com.daleen.freelanceflow.ui.theme.Ink
+import com.daleen.freelanceflow.ui.theme.Line
+import com.daleen.freelanceflow.ui.theme.Mint
+import com.daleen.freelanceflow.ui.theme.Muted
+import com.daleen.freelanceflow.ui.theme.ShadowFabColor
+import com.daleen.freelanceflow.ui.theme.ShadowFabElevation
+import com.daleen.freelanceflow.ui.theme.ShadowPanelColor
+import com.daleen.freelanceflow.ui.theme.ShadowPanelElevation
+import com.daleen.freelanceflow.ui.theme.Shapes
+import com.daleen.freelanceflow.ui.theme.Surface
+import com.daleen.freelanceflow.ui.theme.SurfaceSoft
+import com.daleen.freelanceflow.ui.theme.TagAmberBg
+import com.daleen.freelanceflow.ui.theme.TagAmberFg
+import com.daleen.freelanceflow.ui.theme.TagBlueBg
+import com.daleen.freelanceflow.ui.theme.TagBlueFg
+import com.daleen.freelanceflow.ui.theme.TagGreenBg
+import com.daleen.freelanceflow.ui.theme.TagGreenFg
+import androidx.compose.ui.draw.shadow
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -123,6 +152,8 @@ fun MoneyScreen(
                     selected = selectedTab == index,
                     onClick = { selectedTab = index },
                     text = { Text(title) },
+                    selectedContentColor = Brand,
+                    unselectedContentColor = Muted,
                 )
             }
         }
@@ -140,14 +171,19 @@ fun MoneyScreen(
                     )
                 } else {
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
-                        items(invoices, key = { it.id }) { invoice ->
-                            InvoiceRow(
-                                invoice = invoice,
-                                clientName = clientNameById[invoice.clientId] ?: "Unknown client",
-                                onMarkSent = { invoicesViewModel.markSent(invoice) },
-                                onMarkPaid = { invoicesViewModel.markPaid(invoice) },
-                                onShare = { invoicesViewModel.shareInvoice(invoice) },
-                            )
+                        item {
+                            PanelContainer {
+                                invoices.forEachIndexed { index, invoice ->
+                                    if (index > 0) HorizontalDivider(thickness = 1.dp, color = Line)
+                                    InvoiceRow(
+                                        invoice = invoice,
+                                        clientName = clientNameById[invoice.clientId] ?: "Unknown client",
+                                        onMarkSent = { invoicesViewModel.markSent(invoice) },
+                                        onMarkPaid = { invoicesViewModel.markPaid(invoice) },
+                                        onShare = { invoicesViewModel.shareInvoice(invoice) },
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -159,14 +195,19 @@ fun MoneyScreen(
                     )
                 } else {
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
-                        items(expenses, key = { it.id }) { expense ->
-                            ExpenseRow(
-                                expense = expense,
-                                localReceiptFile = expensesViewModel.localReceiptFile(expense),
-                                onDownloadReceipt = { expensesViewModel.downloadReceipt(expense) },
-                                onPreviewReceipt = { previewReceiptFile = it },
-                                onDelete = { expensesViewModel.deleteExpense(expense) },
-                            )
+                        item {
+                            PanelContainer {
+                                expenses.forEachIndexed { index, expense ->
+                                    if (index > 0) HorizontalDivider(thickness = 1.dp, color = Line)
+                                    ExpenseRow(
+                                        expense = expense,
+                                        localReceiptFile = expensesViewModel.localReceiptFile(expense),
+                                        onDownloadReceipt = { expensesViewModel.downloadReceipt(expense) },
+                                        onPreviewReceipt = { previewReceiptFile = it },
+                                        onDelete = { expensesViewModel.deleteExpense(expense) },
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -187,9 +228,14 @@ fun MoneyScreen(
                         else -> taxViewModel.showProfileForm()
                     }
                 },
+                shape = FabShape,
+                containerColor = Brand,
+                contentColor = Color.White,
+                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 0.dp),
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .shadow(ShadowFabElevation, FabShape, ambientColor = ShadowFabColor, spotColor = ShadowFabColor),
             ) {
                 Icon(
                     if (selectedTab == 2) Icons.Filled.Edit else Icons.Filled.Add,
@@ -205,7 +251,12 @@ fun MoneyScreen(
 
     if (builderState != null) {
         val sheetState = rememberModalBottomSheetState()
-        ModalBottomSheet(onDismissRequest = { invoicesViewModel.hideBuilder() }, sheetState = sheetState) {
+        ModalBottomSheet(
+            onDismissRequest = { invoicesViewModel.hideBuilder() },
+            sheetState = sheetState,
+            shape = ActionSheetShape,
+            containerColor = Surface,
+        ) {
             InvoiceBuilderSheet(
                 state = builderState!!,
                 projects = activeProjects,
@@ -225,7 +276,12 @@ fun MoneyScreen(
 
     if (expenseFormState != null) {
         val expenseSheetState = rememberModalBottomSheetState()
-        ModalBottomSheet(onDismissRequest = { expensesViewModel.hideForm() }, sheetState = expenseSheetState) {
+        ModalBottomSheet(
+            onDismissRequest = { expensesViewModel.hideForm() },
+            sheetState = expenseSheetState,
+            shape = ActionSheetShape,
+            containerColor = Surface,
+        ) {
             ExpenseFormSheet(
                 state = expenseFormState!!,
                 projects = activeProjects,
@@ -288,10 +344,39 @@ private fun BusinessNameDialog(initialValue: String, onDismiss: () -> Unit, onSa
         },
         confirmButton = { TextButton(onClick = { onSave(text.trim()) }) { Text("Save") } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        shape = Shapes.large,
+        containerColor = Surface,
+        titleContentColor = Ink,
+        textContentColor = Ink,
     )
 }
 
 private val dateFormat = SimpleDateFormat("d MMM", Locale.getDefault())
+
+@Composable
+private fun PanelContainer(content: @Composable ColumnScope.() -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 8.dp)
+            .shadow(ShadowPanelElevation, Shapes.large, ambientColor = ShadowPanelColor, spotColor = ShadowPanelColor),
+        shape = Shapes.large,
+        colors = CardDefaults.cardColors(containerColor = Surface),
+    ) {
+        Column(content = content)
+    }
+}
+
+@Composable
+private fun StatusTag(text: String, background: Color, foreground: Color) {
+    Box(
+        modifier = Modifier
+            .background(background, Shapes.extraSmall)
+            .padding(horizontal = 7.dp, vertical = 3.dp),
+    ) {
+        Text(text, style = MaterialTheme.typography.labelSmall, color = foreground)
+    }
+}
 
 @Composable
 private fun InvoiceRow(
@@ -302,19 +387,39 @@ private fun InvoiceRow(
     onShare: () -> Unit,
 ) {
     ListItem(
+        leadingContent = {
+            Box(
+                modifier = Modifier
+                    .size(38.dp)
+                    .background(SurfaceSoft, Shapes.small),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(Icons.Outlined.Description, contentDescription = null, tint = Brand)
+            }
+        },
         headlineContent = { Text("${invoice.invoiceNumber} · $clientName") },
         supportingContent = {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Due ${dateFormat.format(Date(invoice.dueDate))} · ${invoice.total.format()}")
+                Text(
+                    "Due ${dateFormat.format(Date(invoice.dueDate))} · ${invoice.total.format()}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Muted,
+                )
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     when (invoice.status) {
                         InvoiceStatus.DRAFT -> AssistChip(onClick = onMarkSent, label = { Text("Mark sent") })
-                        InvoiceStatus.SENT, InvoiceStatus.OVERDUE ->
+                        InvoiceStatus.SENT -> {
+                            StatusTag("SENT", TagBlueBg, TagBlueFg)
                             AssistChip(onClick = onMarkPaid, label = { Text("Mark paid") })
-                        InvoiceStatus.PAID -> Text("Paid", style = MaterialTheme.typography.labelMedium)
+                        }
+                        InvoiceStatus.OVERDUE -> {
+                            StatusTag("OVERDUE", TagAmberBg, TagAmberFg)
+                            AssistChip(onClick = onMarkPaid, label = { Text("Mark paid") })
+                        }
+                        InvoiceStatus.PAID -> StatusTag("PAID", TagGreenBg, TagGreenFg)
                     }
                 }
             }
@@ -324,6 +429,7 @@ private fun InvoiceRow(
                 Icon(Icons.Filled.Share, contentDescription = "Share invoice PDF")
             }
         },
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
         modifier = Modifier.padding(horizontal = 8.dp),
     )
 }
@@ -359,27 +465,37 @@ private fun TaxTabContent(
                     selected = period == candidate,
                     onClick = { onPeriodChange(candidate) },
                     label = { Text(candidate.label) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Mint,
+                        selectedLabelColor = Brand,
+                    ),
                 )
             }
         }
 
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(20.dp)) {
-                Text("Deductible expenses", style = MaterialTheme.typography.labelLarge)
-                Text(summary.deductibleTotal.format(), style = MaterialTheme.typography.headlineMedium)
-            }
-        }
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(20.dp)) {
-                Text("Estimated deduction", style = MaterialTheme.typography.labelLarge)
-                Text(summary.estimatedDeduction.format(), style = MaterialTheme.typography.headlineMedium)
-            }
-        }
+        WorkspaceStatCard(label = "Deductible expenses", value = summary.deductibleTotal.format())
+        WorkspaceStatCard(label = "Estimated deduction", value = summary.estimatedDeduction.format())
 
         Text(
             text = "Estimate only, based on your own tax profile — not a filed or certified tax figure.",
             style = MaterialTheme.typography.bodySmall,
         )
+    }
+}
+
+@Composable
+private fun WorkspaceStatCard(label: String, value: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = Shapes.medium,
+        colors = CardDefaults.cardColors(containerColor = Surface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Line),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(value, style = MaterialTheme.typography.displaySmall)
+            Text(label, style = MaterialTheme.typography.bodySmall, color = Muted)
+        }
     }
 }
 
@@ -421,6 +537,10 @@ private fun TaxProfileDialog(
         },
         confirmButton = { TextButton(onClick = onSave) { Text("Save") } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        shape = Shapes.large,
+        containerColor = Surface,
+        titleContentColor = Ink,
+        textContentColor = Ink,
     )
 }
 
@@ -448,17 +568,21 @@ private fun ExpenseRow(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(40.dp)
-                        .clip(RoundedCornerShape(6.dp))
+                        .clip(RoundedCornerShape(13.dp))
                         .clickable { onPreviewReceipt(file) },
                 )
             }
         },
         headlineContent = { Text(expense.category) },
         supportingContent = {
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text("${dateFormat.format(Date(expense.date))} · ${expense.amount.format()}")
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    "${dateFormat.format(Date(expense.date))} · ${expense.amount.format()}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Muted,
+                )
                 if (expense.deductible) {
-                    Text("Deductible", style = MaterialTheme.typography.labelMedium)
+                    StatusTag("DEDUCTIBLE", TagGreenBg, TagGreenFg)
                 }
             }
         },
@@ -467,6 +591,7 @@ private fun ExpenseRow(
                 Icon(Icons.Filled.Delete, contentDescription = "Delete expense")
             }
         },
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
         modifier = Modifier.padding(horizontal = 8.dp),
     )
 }
