@@ -13,6 +13,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -38,13 +39,7 @@ import com.daleen.freelanceflow.presentation.navigation.FreelanceFlowDestination
 import com.daleen.freelanceflow.presentation.navigation.FreelanceFlowNavHost
 import com.daleen.freelanceflow.presentation.screens.auth.AuthScreen
 import com.daleen.freelanceflow.presentation.screens.auth.AuthViewModel
-import com.daleen.freelanceflow.ui.theme.Brand
-import com.daleen.freelanceflow.ui.theme.Canvas
-import com.daleen.freelanceflow.ui.theme.Ink
-import com.daleen.freelanceflow.ui.theme.Line
-import com.daleen.freelanceflow.ui.theme.NavInactive
 import com.daleen.freelanceflow.ui.theme.Shapes
-import com.daleen.freelanceflow.ui.theme.Surface
 
 @Composable
 fun FreelanceFlowApp(authViewModel: AuthViewModel = hiltViewModel()) {
@@ -74,17 +69,17 @@ private fun SignedInApp(onSignOut: () -> Unit) {
             TopAppBar(
                 title = { Text(currentDestination?.label ?: "FreelanceFlow") },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Canvas,
-                    titleContentColor = Ink,
-                    actionIconContentColor = Ink,
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground,
+                    actionIconContentColor = MaterialTheme.colorScheme.onBackground,
                 ),
                 actions = {
                     IconButton(
                         onClick = onSignOut,
                         modifier = Modifier
                             .size(36.dp)
-                            .border(1.dp, Line, Shapes.small)
-                            .background(Surface, Shapes.small),
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, Shapes.small)
+                            .background(MaterialTheme.colorScheme.surface, Shapes.small),
                     ) {
                         Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Sign out")
                     }
@@ -96,8 +91,8 @@ private fun SignedInApp(onSignOut: () -> Unit) {
             val currentRoute = backStackEntry?.destination
 
             Column {
-                HorizontalDivider(thickness = 1.dp, color = Line)
-                NavigationBar(containerColor = Surface.copy(alpha = 0.95f)) {
+                HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                NavigationBar(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)) {
                     FreelanceFlowDestination.entries.forEach { destination ->
                         val selected = currentRoute?.hierarchy?.any { it.route == destination.route } == true
                         NavigationBarItem(
@@ -114,10 +109,10 @@ private fun SignedInApp(onSignOut: () -> Unit) {
                             icon = { Icon(destination.icon, contentDescription = destination.label) },
                             label = { Text(destination.label) },
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = Brand,
-                                selectedTextColor = Brand,
-                                unselectedIconColor = NavInactive,
-                                unselectedTextColor = NavInactive,
+                                selectedIconColor = MaterialTheme.colorScheme.primary,
+                                selectedTextColor = MaterialTheme.colorScheme.primary,
+                                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                 indicatorColor = Color.Transparent,
                             ),
                         )
