@@ -1,26 +1,35 @@
 package com.daleen.freelanceflow.presentation.screens.auth
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.daleen.freelanceflow.ui.theme.Brand
+import com.daleen.freelanceflow.ui.theme.Canvas
+import com.daleen.freelanceflow.ui.theme.PrimaryButtonShape
 
 @Composable
 fun AuthScreen(viewModel: AuthViewModel = hiltViewModel(), modifier: Modifier = Modifier) {
@@ -29,6 +38,7 @@ fun AuthScreen(viewModel: AuthViewModel = hiltViewModel(), modifier: Modifier = 
     Column(
         modifier = modifier
             .fillMaxSize()
+            .background(Canvas)
             .padding(24.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -49,6 +59,11 @@ fun AuthScreen(viewModel: AuthViewModel = hiltViewModel(), modifier: Modifier = 
             label = { Text("Email") },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Brand,
+                focusedLabelColor = Brand,
+                cursorColor = Brand,
+            ),
             modifier = Modifier.fillMaxWidth(),
         )
         OutlinedTextField(
@@ -58,6 +73,11 @@ fun AuthScreen(viewModel: AuthViewModel = hiltViewModel(), modifier: Modifier = 
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Brand,
+                focusedLabelColor = Brand,
+                cursorColor = Brand,
+            ),
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         )
 
@@ -73,12 +93,21 @@ fun AuthScreen(viewModel: AuthViewModel = hiltViewModel(), modifier: Modifier = 
         Button(
             onClick = viewModel::submit,
             enabled = !form.isSubmitting,
+            shape = PrimaryButtonShape,
+            colors = ButtonDefaults.buttonColors(containerColor = Brand, contentColor = Color.White),
+            contentPadding = PaddingValues(horizontal = 18.dp, vertical = 12.dp),
             modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
         ) {
             if (form.isSubmitting) {
-                CircularProgressIndicator(modifier = Modifier.padding(2.dp))
+                CircularProgressIndicator(
+                    modifier = Modifier.padding(2.dp).height(20.dp),
+                    color = Color.White,
+                )
             } else {
-                Text(if (form.isSignUp) "Sign up" else "Sign in")
+                Text(
+                    text = if (form.isSignUp) "Sign up" else "Sign in",
+                    style = MaterialTheme.typography.labelLarge,
+                )
             }
         }
 
