@@ -6,10 +6,13 @@ import androidx.compose.ui.graphics.Color
 
 val Ink = Color(0xFF17201C)
 val Muted = Color(0xFF76817B)
-val Line = Color(0xFFE6EBE7)
-val Canvas = Color(0xFFF3F5F2)
+val Line = Color(0xFFE9E2D3)
+// Warm beige, not the mock's near-white canvas -- user asked for something
+// easier on the eyes than plain white. Cards stay pure white (Surface) for
+// contrast against it.
+val Canvas = Color(0xFFF5EFE2)
 val Surface = Color(0xFFFFFFFF)
-val SurfaceSoft = Color(0xFFF7F9F6)
+val SurfaceSoft = Color(0xFFF0E9D8)
 val Brand = Color(0xFF175F4A)
 val BrandDark = Color(0xFF104737)
 val Mint = Color(0xFFC8F2DF)
