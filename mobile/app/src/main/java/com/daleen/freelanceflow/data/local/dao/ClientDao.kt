@@ -2,20 +2,22 @@ package com.daleen.freelanceflow.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.Upsert
 import com.daleen.freelanceflow.data.local.entity.ClientEntity
 import com.daleen.freelanceflow.data.local.entity.ClientStatus
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ClientDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    // @Upsert, not @Insert(REPLACE): REPLACE deletes-then-reinserts the conflicting row,
+    // which trips the RESTRICT foreign keys from projects/invoices.clientId on every edit
+    // of a client that already has either. @Upsert compiles to a real UPDATE on conflict.
+    @Upsert
     suspend fun upsert(client: ClientEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun upsertAll(clients: List<ClientEntity>)
 
     @Update

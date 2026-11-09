@@ -2,19 +2,21 @@ package com.daleen.freelanceflow.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.Upsert
 import com.daleen.freelanceflow.data.local.entity.TimeEntryEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TimeEntryDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    // @Upsert, not @Insert(REPLACE): REPLACE deletes-then-reinserts the conflicting row,
+    // which would SET NULL any invoice_items.sourceTimeEntryId already linked to this entry
+    // (e.g. stopping a timer that was somehow already invoiced). @Upsert is a real UPDATE.
+    @Upsert
     suspend fun upsert(entry: TimeEntryEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun upsertAll(entries: List<TimeEntryEntity>)
 
     @Update

@@ -2,20 +2,22 @@ package com.daleen.freelanceflow.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.Upsert
 import com.daleen.freelanceflow.data.local.entity.ProjectEntity
 import com.daleen.freelanceflow.data.local.entity.ProjectStatus
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ProjectDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    // @Upsert, not @Insert(REPLACE): REPLACE deletes-then-reinserts the conflicting row,
+    // which trips the RESTRICT foreign key from time_entries.projectId on every edit of a
+    // project that already has a time entry. @Upsert compiles to a real UPDATE on conflict.
+    @Upsert
     suspend fun upsert(project: ProjectEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun upsertAll(projects: List<ProjectEntity>)
 
     @Update
